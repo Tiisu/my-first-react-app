@@ -1,8 +1,13 @@
-import React from 'react'
-import reactLogo from '../assets/react.svg'
-import { Link } from 'react-router-dom'
+import React, { useContext } from 'react';
+import reactLogo from '../assets/react.svg';
+import { Link } from 'react-router-dom';
+import { CartContext } from './CartContext';
 
 const Navbar = () => {
+    const { cart } = useContext(CartContext);
+
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
     return (
         <nav className="bg-transparent shadow-md">
             <div className="flex flex-col md:flex-row justify-between items-center w-full p-4">
@@ -16,11 +21,18 @@ const Navbar = () => {
                 <div className="w-full md:w-auto flex-1 flex justify-center md:justify-end items-center font-semibold text-lg">
                     <Link to="/" className="mx-2">Home</Link>
                     <Link to="/shop" className="mx-2">Shop</Link>
-                    <img src={reactLogo} alt="Cart" className="h-8 ml-2" />
+                    <Link to="/cart" className="relative">
+                        <img src={reactLogo} alt="Cart" className="h-8 ml-2" />
+                        {totalItems > 0 && (
+                            <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-2 text-xs">
+                                {totalItems}
+                            </span>
+                        )}
+                    </Link>
                 </div>
             </div>
         </nav>
-    )
-}
+    );
+};
 
-export default Navbar
+export default Navbar;

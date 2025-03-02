@@ -1,32 +1,23 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-
-const products = [
-    { id: 1, title: 'Product 1', description: 'Description for product 1', price: 99.99, image: 'path-to-image1.jpg' },
-    { id: 2, title: 'Product 2', description: 'Description for product 2', price: 89.99, image: 'path-to-image2.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    { id: 3, title: 'Product 3', description: 'Description for product 3', price: 79.99, image: 'path-to-image3.jpg' },
-    // Add more products as needed
-];
+import React, { useEffect, useState, useContext } from 'react';
+import { CartContext } from './CartContext';
 
 const DisplayAllJobs = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+    const [quantities, setQuantities] = useState({});
+    const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
         const fetchProducts = async () => { 
             try {
-                // Simulate API request
                 const res = await fetch('https://fakestoreapi.com/products');
                 const data = await res.json();
                 setProducts(data);
-
+                const initialQuantities = {};
+                data.forEach(product => {
+                    initialQuantities[product.id] = 0;
+                });
+                setQuantities(initialQuantities);
             } catch (error) {
                 console.log('Error fetching products: ', error);
             } finally {
@@ -36,9 +27,38 @@ const DisplayAllJobs = () => {
 
         fetchProducts();
     }, []);
+
+    const handleIncrement = (id) => {
+        setQuantities(prevQuantities => ({
+            ...prevQuantities,
+            [id]: prevQuantities[id] + 1
+        }));
+    };
+
+    const handleDecrement = (id) => {
+        setQuantities(prevQuantities => ({
+            ...prevQuantities,
+            [id]: Math.max(prevQuantities[id] - 1, 0)
+        }));
+    };
+
+    const handleInputChange = (id, value) => {
+        const newValue = parseInt(value, 10);
+        if (!isNaN(newValue) && newValue >= 0) {
+            setQuantities(prevQuantities => ({
+                ...prevQuantities,
+                [id]: newValue
+            }));
+        }
+    };
+
+    const handleAddToCart = (product) => {
+        addToCart(product, quantities[product.id]);
+    };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product, index) => (
+            {products.map((product) => (
                 <div key={product.id} className="max-w-sm rounded overflow-hidden shadow-lg p-4">
                     <img src={product.image} alt={product.title} className="w-full h-48 object-cover" />
                     <div className="px-6 py-4">
@@ -48,22 +68,27 @@ const DisplayAllJobs = () => {
                         <div className="flex items-center mt-4">
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                onClick={() => handleDecrement(product.id)}
                             >
                                 ---
                             </button>
                             <input
                                 type="number"
                                 className="mx-2 text-center w-12"
-                                value={0} // Dummy value
-                                readOnly
+                                value={quantities[product.id]}
+                                onChange={(e) => handleInputChange(product.id, e.target.value)}
                             />
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                onClick={() => handleIncrement(product.id)}
                             >
                                 +++
                             </button>
                         </div>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+                            onClick={() => handleAddToCart(product)}
+                        >
                             Add to Cart
                         </button>
                     </div>
