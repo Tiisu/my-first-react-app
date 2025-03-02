@@ -1,11 +1,14 @@
 import React, { useContext } from 'react';
 import { CartContext } from '../components/CartContext';
+import Navbar from '../components/Navbar';
 
 const CartPage = () => {
     const { cart } = useContext(CartContext);
 
     return (
-        <div className="container mx-auto p-4">
+        <>  
+        <Navbar />
+            <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Shopping Cart</h1>
             {cart.length === 0 ? (
                 <p>Your cart is empty.</p>
@@ -24,6 +27,8 @@ const CartPage = () => {
                 </div>
             )}
         </div>
+        </>
+        
     );
 };
 
