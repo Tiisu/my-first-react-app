@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 
 const products = [
     { id: 1, title: 'Product 1', description: 'Description for product 1', price: 99.99, image: 'path-to-image1.jpg' },
@@ -14,6 +15,27 @@ const products = [
 ];
 
 const DisplayAllJobs = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+
+    useEffect(() => {
+        const fetchProducts = async () => { 
+            try {
+                // Simulate API request
+                const res = await fetch('https://fakestoreapi.com/products');
+                const data = await res.json();
+                setProducts(data);
+
+            } catch (error) {
+                console.log('Error fetching products: ', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((product, index) => (
